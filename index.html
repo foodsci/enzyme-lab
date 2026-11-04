@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>효소 연구소 Premium</title><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><style>
+:root{--b:#0d47a1;--a:#1976d2;--bg:#eef5ff}*{box-sizing:border-box}body{margin:0;font-family:Segoe UI,sans-serif;background:var(--bg)}header{background:linear-gradient(135deg,var(--b),var(--a));color:#fff;padding:28px;text-align:center}.wrap{max-width:1200px;margin:auto;padding:16px}.card{background:#fff;border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 3px 10px rgba(0,0,0,.08)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}button{background:var(--a);color:white;border:none;border-radius:10px;padding:12px 16px}button:hover{opacity:.9}input[type=range],select,input[type=text]{width:100%}.badge{display:inline-block;background:#e3f2fd;padding:6px 10px;border-radius:8px;margin:4px}.hero{text-align:center}.score{font-size:24px;font-weight:bold;color:#0d47a1}@media(max-width:700px){header h1{font-size:1.5rem}}
+</style></head><body>
+<header><h1>🧪 식품가공 효소 연구소</h1><p>효소 촉매 작용, 기질특이성, 온도·pH·농도 실험</p></header>
+<div class="wrap">
+<div class="card hero"><h2>학습목표</h2><p>효소의 촉매 작용과 식품가공에서의 역할을 탐구한다.</p><div class="badge">촉매작용</div><div class="badge">기질특이성</div><div class="badge">온도</div><div class="badge">pH</div><div class="badge">기질농도</div></div>
+<div class="card"><h2>1. 촉매 작용 시뮬레이션</h2><button onclick="catalyst(true)">효소 투입</button> <button onclick="catalyst(false)">효소 없음</button><div id="cat"></div></div>
+<div class="card"><h2>2. 기질 특이성 게임</h2><p>효소A에 맞는 기질을 선택하세요.</p><button onclick="substrate(1)">기질A</button><button onclick="substrate(0)">기질B</button><button onclick="substrate(0)">기질C</button><div id="subr"></div></div>
+<div class="grid">
+<div class="card"><h2>온도 실험</h2><input id="temp" type="range" min="0" max="100" value="37"><p id="tempInfo"></p><canvas id="tempChart"></canvas></div>
+<div class="card"><h2>pH 실험</h2><select id="enzyme"><option value="2">펩신</option><option value="7">아밀레이스</option><option value="8">트립신</option></select><input id="ph" type="range" min="1" max="14" value="7"><p id="phInfo"></p><canvas id="phChart"></canvas></div>
+</div>
+<div class="card"><h2>기질 농도 실험</h2><input id="conc" type="range" min="0" max="100" value="20"><p id="concInfo"></p><canvas id="concChart"></canvas></div>
+<div class="card"><h2>효소 분류 탐험</h2><div class="grid"><div>산화환원효소<br>사과 갈변</div><div>전이효소<br>작용기 이동</div><div>가수분해효소<br>아밀레이스</div><div>분해효소</div><div>이성질화효소<br>포도당↔과당</div><div>연결효소<br>ATP 사용</div></div></div>
+<div class="card"><h2>형성평가</h2><div id="quiz"></div><p class="score" id="score">점수: 0</p></div>
+</div>
+<script>
+let score=0;function catalyst(x){cat.innerHTML=x?'<h3>반응시간 15초</h3><p>활성화에너지가 낮아졌습니다.</p>':'<h3>반응시간 120초</h3><p>반응이 느리게 진행됩니다.</p>'}
+function substrate(x){subr.innerHTML=x?'✅ 효소-기질 복합체 형성':'❌ 기질 특이성 불일치'}
+const tc=new Chart(tempChart,{type:'line',data:{labels:[],datasets:[{label:'활성도',data:[],borderColor:'blue'}]}});
+const pc=new Chart(phChart,{type:'line',data:{labels:[],datasets:[{label:'활성도',data:[],borderColor:'green'}]}});
+const cc=new Chart(concChart,{type:'line',data:{labels:[],datasets:[{label:'반응속도',data:[],borderColor:'orange'}]}});
+function updTemp(){let t=+temp.value;let a=Math.max(0,100-Math.abs(t-37)*2.5);tempInfo.textContent=`${t}℃ / 활성 ${a.toFixed(0)}%`;tc.data.labels.push(t);tc.data.datasets[0].data.push(a);if(tc.data.labels.length>15){tc.data.labels.shift();tc.data.datasets[0].data.shift()}tc.update()}
+function updPh(){let p=+ph.value,o=+enzyme.value;let a=Math.max(0,100-Math.abs(p-o)*15);phInfo.textContent=`pH ${p} / 활성 ${a.toFixed(0)}%`;pc.data.labels.push(p);pc.data.datasets[0].data.push(a);if(pc.data.labels.length>15){pc.data.labels.shift();pc.data.datasets[0].data.shift()}pc.update()}
+function updConc(){let c=+conc.value;let v=100*(1-Math.exp(-c/30));concInfo.textContent=`농도 ${c}% / 속도 ${v.toFixed(0)}%`;cc.data.labels.push(c);cc.data.datasets[0].data.push(v);if(cc.data.labels.length>15){cc.data.labels.shift();cc.data.datasets[0].data.shift()}cc.update()}
+ temp.oninput=updTemp; ph.oninput=updPh; enzyme.onchange=updPh; conc.oninput=updConc;
+const qs=[['아밀레이스 최적 pH는?', ['2','7','12'],1],['효소의 역할은?', ['속도 증가','소모됨','생성물 감소'],0],['37℃ 근처에서 활성 높은 이유?', ['최적온도','결빙','중성화'],0]];
+quiz.innerHTML=qs.map((q,i)=>`<div><p>${i+1}. ${q[0]}</p>${q[1].map((c,j)=>`<button onclick="grade(${i},${j},this)">${c}</button>`).join(' ')}</div>`).join('');
+window.grade=function(i,j,b){if(b.dataset.done)return;b.dataset.done=1;if(j===qs[i][2]){score+=33;b.style.background='green'}else{b.style.background='crimson'}scoreEl=document.getElementById('score');scoreEl.textContent='점수: '+Math.min(score,100);localStorage.setItem('enzymeLabScore',score)}
+updTemp();updPh();updConc();
+</script></body></html>
